@@ -19,13 +19,13 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="matrix44.cpp">
-      <Filter>头文件</Filter>
-    </ClCompile>
-    <ClCompile Include="vec3f.cpp">
-      <Filter>头文件</Filter>
+      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="color.cpp">
-      <Filter>头文件</Filter>
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="vec3f.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

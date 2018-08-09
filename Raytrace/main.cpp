@@ -30,7 +30,7 @@ vec3f trace(const Ray &ray, std::vector<Sphere> &spheres, int depth,const int &M
 		}
 	}
 	if (!sphere) {
-		return vec3f(1);
+		return vec3f(3);
 	}
 	vec3f surfaceColor = 0;
 	float bias = 1e-2;
@@ -80,36 +80,52 @@ vec3f trace(const Ray &ray, std::vector<Sphere> &spheres, int depth,const int &M
 	return surfaceColor + sphere->emissionColor_;
 }
 
-void m_render(int w, int h, std::vector<Sphere> &spheres,int MAX_DEPTH, color **image) {
-	float invWidth = 1.0f / (float)w;
-	float invHeight = 1.0f / (float)h;
-	float aspectratio = (float)w / (float)h;
-	float angle = tan(3.14f*0.5f*(30 / 180));
-	vec3f pixel;
-	for (unsigned y = 0; y < h; ++y) {
-		for (unsigned x = 0; x < w; ++x) {
-			float xx = (2 * x * invWidth - 1)* angle* aspectratio;
-			float yy = (1 - 2 * y * invHeight)* angle;
-			vec3f raydir(xx, yy, -1);
-			raydir.normalize();
-			pixel = trace(Ray(vec3f(0), raydir), spheres, 0,MAX_DEPTH);
-			//std::cout << pixel << std::endl;
-			pixel = pixel * 255;
-			color col(pixel._x, pixel._y, pixel._z);
-			image[h - y - 1][x] = col;
+void m_render(int w, int h, float theta,std::vector<Sphere> &spheres,int MAX_DEPTH, color **image) {
+	float tanh = tanf(theta / 360 * 3.14f);
+	float yy = 2 * tanh;
+	float aspect = float(w) / float(h);
+	float xx = aspect * yy;
+	float invWidth = 1.0f / float(w);
+	float invHeight = 1.0f / float(h);
+	for (unsigned y = 0; y < h; y++) {
+		for (unsigned x = 0; x < w; x++) {
+			float dx = (x + 0.5f) * 2 * xx *invWidth - xx / 2.0f;
+			float dy = yy / 2.0f - (h - y - 0.5f) * 2 * yy *invHeight;
+			vec3f target(dx, dy, -1);
+			vec3f reslut = trace(Ray(vec3f(0), target.normalize()), spheres, 0, MAX_DEPTH);
+			reslut = reslut * 70;
+			image[h - y - 1][x] = color(reslut._x, reslut._y, reslut._z);
 		}
 	}
+	//float invWidth = 1.0f / (float)w;
+	//float invHeight = 1.0f / (float)h;
+	//float aspectratio = (float)w / (float)h;
+	//float angle = tan(3.14f*0.5f*(30 / 180));
+	//vec3f pixel;
+	//for (unsigned y = 0; y < h; ++y) {
+	//	for (unsigned x = 0; x < w; ++x) {
+	//		float xx = (2 * x * invWidth - 1)* angle* aspectratio;
+	//		float yy = (1 - 2 * y * invHeight)* angle;
+	//		vec3f raydir(xx, yy, -1);
+	//		raydir.normalize();
+	//		pixel = trace(Ray(vec3f(0), raydir), spheres, 0,MAX_DEPTH);
+	//		//std::cout << pixel << std::endl;
+	//		pixel = pixel * 255;
+	//		color col(pixel._x, pixel._y, pixel._z);
+	//		image[h - y - 1][x] = col;
+	//	}
+	//}
 }
 
 void demo_sphere_world(int w, int h, int MAX_DEPTH) {
 	std::vector<Sphere> spheres;
-	   spheres.push_back(Sphere(vec3f(0,0,0),20,vec3f(0,0,0),1,0));
-	   spheres.push_back(Sphere(vec3f(0,10,-10),10,vec3f(0.4f,0.6f,0.1f),0,0,vec3f(3)));
-	   spheres.push_back(Sphere(vec3f(5,0,-10),2,vec3f(0.6f,0.1f,0.3f),0.6f,0.4f));
+	/*spheres.push_back(Sphere(vec3f(0,0,0),20,vec3f(0,0,0),1,0));
+    spheres.push_back(Sphere(vec3f(0,10,-20),100,vec3f(0.4f,0.6f,0.1f),0,0));
+	spheres.push_back(Sphere(vec3f(5,0,-10),2,vec3f(0.6f,0.1f,0.3f),0.6f,0.4f));*/
 	/* position, radius, surface color, reflectivity, transparency, emission color*/
-	spheres.push_back(Sphere(vec3f( 0.0, -10004, -20), 10000, vec3f(0.20, 0.20, 0.20), 0, 0.0));
-	//spheres.push_back(Sphere(vec3f(0.0, 0, 0), 100, vec3f(0.6f, 0.1f, 0.1f), 1, 0));
-	//spheres.push_back(Sphere(Vec3f( 5.0,     -1, -15),     2, Vec3f(0.90, 0.76, 0.46), 0.6f, 0.4f));
+	spheres.push_back(Sphere(vec3f( 0.0, 0, -10), 3, vec3f(0.20, 0.20, 0.20), 0.4, 0.6,vec3f(0.7f,0.2f,0.2f)));
+	spheres.push_back(Sphere(vec3f(0.0, -104, -20), 100, vec3f(0.6f, 0.1f, 0.1f), 1, 0));
+	spheres.push_back(Sphere(vec3f( 5.0,     -1, -15),     2, vec3f(0.90, 0.76, 0.46), 0.6f, 0.4f));
 	//spheres.push_back(Sphere(Vec3f( 5.0,      0, -25),     3, Vec3f(0.65, 0.77, 0.97), 1, 0.4f));
 	//spheres.push_back(Sphere(Vec3f(-5.5,      0, -15),     3, Vec3f(0.90, 0.90, 0.90), 1, 0.4f));
 	// light
@@ -120,7 +136,7 @@ void demo_sphere_world(int w, int h, int MAX_DEPTH) {
 		mat[i] = new color[w];
 	}
 
-	m_render(w, h, spheres, 5, mat);
+	m_render(w, h, 60, spheres, 5, mat);
 
 	generate_color_PPM("D:/github/Raytracer/Raytrace/images/sphere_world_1.ppm", w, h, mat);
 }
