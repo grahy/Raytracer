@@ -80,41 +80,40 @@ vec3f trace(const Ray &ray, std::vector<Sphere> &spheres, int depth,const int &M
 	return surfaceColor + sphere->emissionColor_;
 }
 
-void m_render(int w, int h, float theta,std::vector<Sphere> &spheres,int MAX_DEPTH, color **image) {
-	float tanh = tanf(theta / 360 * 3.14f);
-	float yy = 2 * tanh;
-	float aspect = float(w) / float(h);
-	float xx = aspect * yy;
-	float invWidth = 1.0f / float(w);
-	float invHeight = 1.0f / float(h);
-	for (unsigned y = 0; y < h; y++) {
-		for (unsigned x = 0; x < w; x++) {
-			float dx = (x + 0.5f) * 2 * xx *invWidth - xx / 2.0f;
-			float dy = yy / 2.0f - (h - y - 0.5f) * 2 * yy *invHeight;
+void m_render_perspective(int w, int h, float vtheta,std::vector<Sphere> &spheres,int MAX_DEPTH, color **image) {
+	float tanh = tanf(vtheta / 360 * 3.14f);
+	float ratio = float(w) / float(h);
+	float height = tanh * 2;
+	float width = height * ratio;
+	float invheight = 1.0f / h;
+	float invwidth = 1.0f / w;
+	float halfwidth = width / 2.0f;
+	float halfheight = height / 2.0f;
+	for (int y = 0; y < h; y++) {
+		for (int x = 0; x < w; x++) {
+			float dx = (x + 0.5f)*invwidth*width - halfwidth;
+			float dy = (y + 0.5f)*invheight*height - halfheight;
 			vec3f target(dx, dy, -1);
 			vec3f reslut = trace(Ray(vec3f(0), target.normalize()), spheres, 0, MAX_DEPTH);
 			reslut = reslut * 70;
 			image[h - y - 1][x] = color(reslut._x, reslut._y, reslut._z);
 		}
 	}
-	//float invWidth = 1.0f / (float)w;
-	//float invHeight = 1.0f / (float)h;
-	//float aspectratio = (float)w / (float)h;
-	//float angle = tan(3.14f*0.5f*(30 / 180));
-	//vec3f pixel;
-	//for (unsigned y = 0; y < h; ++y) {
-	//	for (unsigned x = 0; x < w; ++x) {
-	//		float xx = (2 * x * invWidth - 1)* angle* aspectratio;
-	//		float yy = (1 - 2 * y * invHeight)* angle;
-	//		vec3f raydir(xx, yy, -1);
-	//		raydir.normalize();
-	//		pixel = trace(Ray(vec3f(0), raydir), spheres, 0,MAX_DEPTH);
-	//		//std::cout << pixel << std::endl;
-	//		pixel = pixel * 255;
-	//		color col(pixel._x, pixel._y, pixel._z);
-	//		image[h - y - 1][x] = col;
-	//	}
-	//}
+}
+
+void m_render_orthorgraphics(int w, int h, std::vector<Sphere> &spheres, int MAX_DEPTH, color **image) {
+	float invHeight = 1.0f / float(h);
+	float mx = (float)w / 2.0f;
+	float my = float(h) / 2.0f;
+	for (int y = 0; y < h; y++) {
+		for (int x = 0; x < w; x++) {
+			float dx = invHeight * (x - mx + 0.5f);                                                    //将height从[0,h]放缩到[0,1] 同理width将放缩到[0,ratio]
+			float dy = invHeight * (y - my + 0.5f);
+			vec3f reslut = trace(Ray(vec3f(dx,dy,0), vec3f(dx,dy,-1)), spheres, 0, MAX_DEPTH);
+			reslut = reslut * 70;
+			image[h - y - 1][x] = color(reslut._x, reslut._y, reslut._z);
+		}
+	}
 }
 
 void demo_sphere_world(int w, int h, int MAX_DEPTH) {
@@ -126,8 +125,8 @@ void demo_sphere_world(int w, int h, int MAX_DEPTH) {
 	spheres.push_back(Sphere(vec3f( 0.0, 0, -10), 3, vec3f(0.20, 0.20, 0.20), 0.4, 0.6,vec3f(0.7f,0.2f,0.2f)));
 	spheres.push_back(Sphere(vec3f(0.0, -104, -20), 100, vec3f(0.6f, 0.1f, 0.1f), 1, 0));
 	spheres.push_back(Sphere(vec3f( 5.0,     -1, -15),     2, vec3f(0.90, 0.76, 0.46), 0.6f, 0.4f));
-	//spheres.push_back(Sphere(Vec3f( 5.0,      0, -25),     3, Vec3f(0.65, 0.77, 0.97), 1, 0.4f));
-	//spheres.push_back(Sphere(Vec3f(-5.5,      0, -15),     3, Vec3f(0.90, 0.90, 0.90), 1, 0.4f));
+	spheres.push_back(Sphere(vec3f( 5.0,      0, -25),     3, vec3f(0.65, 0.77, 0.97), 1, 0.4f));
+	spheres.push_back(Sphere(vec3f(-5.5,      0, -15),     3, vec3f(0.90, 0.90, 0.90), 1, 0.4f));
 	// light
 	spheres.push_back(Sphere(vec3f(0.0, 10, -30), 3, vec3f(0.00, 0.00, 0.00), 0, 0.0, vec3f(3)));
 
@@ -136,9 +135,11 @@ void demo_sphere_world(int w, int h, int MAX_DEPTH) {
 		mat[i] = new color[w];
 	}
 
-	m_render(w, h, 60, spheres, 5, mat);
+	//m_render_perspective(w, h, 60, spheres, 5, mat);
+	m_render_orthorgraphics(w, h, spheres, 5, mat);
 
-	generate_color_PPM("D:/github/Raytracer/Raytrace/images/sphere_world_1.ppm", w, h, mat);
+	//generate_color_PPM("D:/github/Raytracer/Raytrace/images/sphere_world_pers_1.ppm", w, h, mat);
+	generate_color_PPM("D:/github/Raytracer/Raytrace/images/sphere_world_ortho_1.ppm", w, h, mat);
 }
 
 
