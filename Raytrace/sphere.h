@@ -13,9 +13,10 @@ public:
 		const vec3f &sc,
 		const float &refl = 0,
 		const float &transp = 0,
-		const vec3f &ec = 0) :
+		const vec3f &ec = 0,
+		const float &nt=1.0f) :
 		center_(c), radius_(r), radius2_(r * r), surfaceColor_(sc), emissionColor_(ec),
-		transparency_(transp), reflection_(refl)
+		transparency_(transp), reflection_(refl),nt_(nt)
 	{}
 	~Sphere() {}
 
@@ -83,4 +84,5 @@ public:
 	float radius_, radius2_;
 	float transparency_, reflection_;
 	vec3f emissionColor_, surfaceColor_;
+	float nt_;
 };
