@@ -2,7 +2,7 @@
 #include"vec3f.h"
 class Ray {
 public:
-	Ray(const vec3f &rayori, const vec3f &raydir) :ori_(rayori), dir_(raydir) {}
+	Ray(const vec3f &rayori, const vec3f &raydir) :ori_(rayori), dir_(raydir.normalize()) {}
 	~Ray() {}
 	vec3f ori_, dir_;
 };

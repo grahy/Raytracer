@@ -146,6 +146,7 @@
     <ClCompile Include="color.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="matrix44.cpp" />
+    <ClCompile Include="random_arr.cpp" />
     <ClCompile Include="vec3f.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -153,6 +154,7 @@
     <ClInclude Include="hitinfo.h" />
     <ClInclude Include="ioimages.h" />
     <ClInclude Include="matrix44.h" />
+    <ClInclude Include="random_arr.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="sphere.h" />
     <ClInclude Include="vec3f.h" />

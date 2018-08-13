@@ -27,6 +27,9 @@
     <ClCompile Include="vec3f.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="random_arr.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sphere.h">
@@ -48,6 +51,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="vec3f.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="random_arr.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
