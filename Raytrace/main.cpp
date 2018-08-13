@@ -135,7 +135,7 @@ vec3f trace(const Ray &ray, std::vector<Sphere> &spheres, const random_arr &rand
 	return surfaceColor + sphere->emissionColor_;
 }
 
-void m_render_perspective(int w, int h, float vtheta,std::vector<Sphere> &spheres, float sample_num,int MAX_DEPTH, color **image) {
+void m_render_perspective(int w, int h, float vtheta,std::vector<Sphere> &spheres, float sample_num,float lens,float focal_distance,int MAX_DEPTH, color **image) {
 	float tanh = tanf(vtheta / 360 * 3.14f);
 	float ratio = float(w) / float(h);
 	float height = tanh * 2;
@@ -146,18 +146,22 @@ void m_render_perspective(int w, int h, float vtheta,std::vector<Sphere> &sphere
 	float halfheight = height / 2.0f;
 	float n2 = pow(sample_num, 2);
 	float halfsample = float(sample_num) / 2.0f;
-	random_arr random(sample_num);
+	random_arr random(sample_num,lens);
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
 			vec3f reslut;
 			random.shuffle_s();                                 //重置随机数的浮动值
 			random.shuffle_l();
-			float lens_x = random.l[0].x;                               //默认的相机坐标为(0,0,0)
-			float lens_y = random.l[0].y;
 			for (int N = 0; N < pow(sample_num, 2); N++) {
 				float dx = (x + random.r[N].x)*invwidth*width - halfwidth;
 				float dy = (y + random.r[N].y)*invheight*height - halfheight;
-				reslut = reslut + trace(Ray(vec3f(0), vec3f(dx, dy, -1)), spheres, random, 0, MAX_DEPTH);
+				vec3f img_pos(dx, dy, 0);
+				Ray r(vec3f(0, 0, 1), (img_pos - vec3f(0, 0, 1)).normalize());
+				vec3f rayori(random.l[N].x, random.l[N].y, 0);
+				vec3f P = r.dir_ * focal_distance;                                                     //P为焦点
+				vec3f raydir = (P - rayori).normalize();
+				reslut = reslut + trace(Ray(rayori,raydir), spheres, random, 0, MAX_DEPTH);
+				//reslut = reslut + trace(Ray(vec3f(0), rayori.normalize()), spheres, random, 0, MAX_DEPTH);
 			}
 			reslut = reslut / pow(sample_num, 2);
 			reslut = reslut * 255;
@@ -181,7 +185,7 @@ void m_render_perspective(int w, int h, float vtheta,std::vector<Sphere> &sphere
 //					float randomy = (rand() % 99 / double(100) + q) / float(sample_num);
 //					float dx = invHeight * (x - mx + randomx);                                                    //将height从[0,h]放缩到[0,1] 同理width将放缩到[0,ratio]
 //					float dy = invHeight * (y - my + randomy);
-//					reslut = reslut + trace(Ray(vec3f(dx, dy, 0), vec3f(dx, dy, -1)), spheres, 0, MAX_DEPTH);
+//					reslut = reslut + trace(Ray(vec3f(dx, dy, 0), vec3f(dx, dy, -1).normalize()), spheres, 0, MAX_DEPTH);
 //				}
 //			}
 //			reslut = reslut / pow(sample_num, 2);
@@ -212,7 +216,7 @@ void demo_sphere_world(int w, int h, int MAX_DEPTH) {
 		mat[i] = new color[w];
 	}
 
-	m_render_perspective(w, h, 60, spheres, 4, 5, mat);
+	m_render_perspective(w, h, 60, spheres, 4, 0.6f, 10, 5, mat);
 	//m_render_orthorgraphics(w, h, spheres, 5, mat);
 
 	generate_color_PPM("D:/github/Raytracer/Raytrace/images/sphere_world_pers_6.ppm", w, h, mat);

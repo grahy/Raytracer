@@ -66,7 +66,7 @@ std::ostream& operator<<(std::ostream &os, const vec3f &v) {
 }
 
 vec3f vec3f::normalize() const {
-	float t = 1.0f / sqrt(_x*_x + _y * _y + _z * _z);
+	float t = sqrt(1.0f / (_x*_x + _y * _y + _z * _z));
 	return vec3f(t*_x, t*_y, t*_z);
 }
 
