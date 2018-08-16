@@ -45,6 +45,13 @@ vec3f& vec3f::operator+=(const vec3f &v) {
 	return *this;
 }
 
+bool vec3f::operator>(float n) {
+	if (_x + _y + _z > n) {
+		return true;
+	}
+	return false;
+}
+
 bool vec3f::operator!=(const vec3f &v) const {
 	if (_x != v._x)return false;
 	if (_y != v._y)return false;
@@ -76,4 +83,34 @@ float vec3f::squared_length() {
 
 float vec3f::length() const {
 	return sqrt(_x*_x + _y * _y + _z * _z);
+}
+
+
+//vertex
+
+vertex::vertex(const vec3f &pos, const textcoord &tc)
+	:_pos(pos), _tc(tc)
+{
+}
+
+vertex::vertex(const vec3f &pos)
+	: _pos(pos), _tc(textcoord(0, 0))
+{
+
+}
+
+vertex::vertex(const vertex &vertex)
+	: _pos(vertex._pos), _tc(vertex._tc)
+{
+	
+}
+
+bool vertex::operator!=(const vertex &v) {
+	if (_pos != v._pos)return false;
+	if (_tc != v._tc)return false;
+	return true;
+}
+
+vertex::~vertex() {
+
 }

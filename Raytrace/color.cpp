@@ -14,8 +14,8 @@ color::color(float n)
 
 }
 
-color::color(float r, float g, float b)
-	: _r(r), _g(g), _b(b)
+color::color(float _r, float g, float b)
+	: _r(_r), _g(g), _b(b)
 {
 
 }
@@ -38,7 +38,12 @@ color& color::operator=(const color &c) {
 color color::operator*(float n) const{
 	return color(_r*n, _g*n, _b*n);
 }
-
+bool color::operator!=(const color &c) {
+	if (_r != c._r)return false;
+	if (_g != c._g)return false;
+	if (_b != c._b)return false;
+	return true;
+}
 std::ostream& operator<<(std::ostream &os, const color &c) {
 	os << c._r << " " << c._g << " " << c._b;
 	return os;

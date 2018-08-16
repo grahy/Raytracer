@@ -30,11 +30,20 @@
     <ClCompile Include="random_arr.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="objects.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="material.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="sphere.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="ray.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -54,6 +63,18 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="random_arr.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="objects.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="material.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
