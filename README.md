@@ -15,3 +15,7 @@ antialiasing and soft shadow.//18-8-13
 ![sphere_world](https://github.com/grahy/Raytracer/blob/master/Raytrace/images/DOF.png) 
 
 left side is picture with Depth Of Feild.//18-8-14
+
+![room](https://github.com/grahy/Raytracer/blob/master/Raytrace/images/texture.png) 
+
+the shadow was not smooth ,cause i just took 16 sample per shadow ray.//18-8-16.
