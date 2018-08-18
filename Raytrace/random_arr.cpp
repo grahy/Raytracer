@@ -19,15 +19,18 @@ random_arr::random_arr(int sample_num,float lens)
 	_s = new point[n2];
 	_l = new point[n2];
 	if (sample_num == 1) {
-		_r[0].x = _s[0].x;
-		_r[0].y = _s[0].y;
+		_r[0].x = _s[0].x = 0;
+		_r[0].y = _s[0].y = 0;
 	}
 	else {
 		float half_sample = float(sample_num) / 2.0f;
 		
 		for (int i = 0; i < n2; i++) {
-			_r[i].x = _s[i].x = rand() % 99 / double(100) + i % (sample_num - 1) - half_sample;
-			_r[i].y = _s[i].y = rand() % 99 / double(100) + i % (sample_num - 1) - half_sample;
+			_r[i].x =  rand() % 99 / double(100) + i % (sample_num - 1) - half_sample;
+			_r[i].y =  rand() % 99 / double(100) + i % (sample_num - 1) - half_sample;
+			_s[i].x = rand() % 9 / double(10) - 0.5f;
+			_s[i].y = rand() % 9 / double(10) - 0.5f;
+			std::cout << _s[i].x << " " << _s[i].y << std::endl;
 		}
 	}
 	if (lens == 0) {

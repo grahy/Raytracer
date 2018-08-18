@@ -1,18 +1,9 @@
 #include "camera.h"
-
-
-
-int count = 0;
-
-const float INFINITY_ = 1e8;
+#include"ioimages.h"
 
 float mix(const float &a, const float &b, const float &mix)
 {
 	return b * mix + a * (1 - mix);
-}
-
-float max(float a, float b) {
-	return a > b ? a : b;
 }
 
 bool refract(const Ray &ray, const vec3f &normal, float nt, vec3f &refrac_dir) {
@@ -36,13 +27,17 @@ vec3f lambertin(const Hitinfo &hitinfo, const vec3f &light_dir, const vec3f &tra
 	return (object->surfaceColor() + texcol) * transmision * num * light->emissionColor();
 }
 
+vec3f blinn_phong(const Hitinfo &hitinfo, const Ray &ray,const vec3f &light_dir, const vec3f &transmision, const objects *light, const objects *object, float p) {
+	vec3f h = -(ray.dir_ + light_dir).normalize();
+	vec3f texcol(hitinfo._texcol._r, hitinfo._texcol._g, hitinfo._texcol._b);
+	texcol = texcol / 255.0f;
+	return (object->surfaceColor() + texcol)*transmision*(max(0, dot(hitinfo._normal, light_dir)) + pow(max(0, dot(hitinfo._normal, h)), p));
+}
 
-
-
-vec3f trace(const Ray &ray, std::vector<objects*> &obj, const random_arr &random, int depth, const int &MAX_DEPTH, float tmin = 0, float tmax = INFINITY_) {
+vec3f camera::trace(const Ray &ray, std::vector<objects*> &obj, const random_arr &random, int depth, const int &MAX_DEPTH, float tmin, float tmax){
 	objects *object = NULL;
 	Hitinfo hitinfo, temphit;
-	float dis = INFINITY_;
+	float dis = INFINITY;
 	for (unsigned int i = 0; i<obj.size(); i++) {
 		if (obj[i]->intersect(ray, temphit, tmin, tmax)) {
 			if (dis>temphit._distance) {
@@ -68,7 +63,7 @@ vec3f trace(const Ray &ray, std::vector<objects*> &obj, const random_arr &random
 		vec3f reflection = trace(Ray(hitinfo._phit + hitinfo._normal*bias, reflec_dir), obj,random, depth + 1, MAX_DEPTH);
 		vec3f refraction = 0;
 		if (object->transparency()>0) {
-			float ior = 1.1f; float eta = (inside) ? ior : (1 / ior);
+			float eta = (inside) ? object->nt() : (1.0f / object->nt());
 			float cosi = -dot(hitinfo._normal, ray.dir_);
 			float k = 1 - eta * eta*(1 - cosi * cosi);
 			vec3f refrac_dir = (ray.dir_*eta + hitinfo._normal*(eta*cosi - sqrt(k))).normalize();
@@ -86,14 +81,38 @@ vec3f trace(const Ray &ray, std::vector<objects*> &obj, const random_arr &random
 			if (obj[i]->emissionColor()>0) {
 				vec3f transmision(1);
 				vec3f lightDirection;
-				tempColor = 0;
-				for (int N = 0; N < random.n2; N++) {
-					vec3f light_center;
-					if (obj[i]->getObjectType() == Objtype::SPHERE) {
-						Sphere *_s = (Sphere*)obj[i];
-						light_center = _s->center_ + vec3f(random._s[N].x, random._s[N].y, 0);
-					}
+				vec3f light_center;
+				if (obj[i]->getObjectType() == Objtype::SPHERE) {
+					Sphere *_s = (Sphere*)obj[i];
+					light_center = _s->center_;
 					lightDirection = (light_center - hitinfo._phit).normalize();
+				}else {
+					continue;
+				}
+				if (_useSR) {
+					tempColor = 0;
+					for (int N = 0; N < random.n2; N++) {
+						vec3f vup(0, 1, 0);
+						vec3f w = lightDirection;
+						vec3f u = cross(vup, w).normalize();
+						vec3f v = cross(u, w);
+						lightDirection = (light_center + u * random._s[N].x + v * random._s[N].y - hitinfo._phit).normalize();
+						for (unsigned int j = 0; j<obj.size(); j++) {
+							if (i != j && (obj[i] != object)) {
+								Hitinfo hit2;
+								if (obj[j]->intersect(Ray(hitinfo._phit + hitinfo._normal*bias, lightDirection), hit2, tmin, tmax)) {
+									transmision = vec3f(0);
+									break;
+								}
+							}
+						}
+						tempColor = tempColor + lambertin(hitinfo, lightDirection, transmision, obj[i], object);
+						//tempColor = tempColor + blinn_phong(hitinfo, ray, lightDirection, transmision, obj[i], object, 100);
+					}
+					tempColor = tempColor / float(random.n2);
+					surfaceColor += tempColor;
+				}
+				else {
 					for (unsigned int j = 0; j<obj.size(); j++) {
 						if (i != j && (obj[i] != object)) {
 							Hitinfo hit2;
@@ -103,10 +122,8 @@ vec3f trace(const Ray &ray, std::vector<objects*> &obj, const random_arr &random
 							}
 						}
 					}
-					tempColor = tempColor + lambertin(hitinfo, lightDirection, transmision, obj[i], object);
+					surfaceColor += lambertin(hitinfo, lightDirection, transmision, obj[i], object);
 				}
-				tempColor = tempColor / float(random.n2);
-				surfaceColor += tempColor;
 			}
 		}
 	}
@@ -114,16 +131,16 @@ vec3f trace(const Ray &ray, std::vector<objects*> &obj, const random_arr &random
 }
 
 camera::camera(const vec3f &eye, const vec3f &lookat, const vec3f &vup, float zn, float zf, float vtheta) 
-	:_e(eye),_w(-(lookat-eye).normalize()),_u(cross(vup,_w).normalize()),_v(cross(_w,_u)),_vtheta(vtheta)
+	:_e(eye),_w((eye - lookat).normalize()),_u(cross(vup,_w).normalize()),_v(cross(_w,_u)),_vtheta(vtheta)
 {
 	init(zf, zn);
 	_model = Camera_model::PERPSECTIVE;
 }
 camera::camera(const vec3f &eye, const vec3f &lookat, const vec3f &vup, float zf) 
-	: _e(eye), _w(-(lookat - eye).normalize()), _u(cross(vup, _w).normalize()), _v(cross(_w, _u)), _zn(0), _zf(zf)
+	: _e(eye), _w((eye - lookat).normalize()), _u(cross(vup, _w).normalize()), _v(cross(_w, _u)), _zn(0), _zf(zf)
 {
 	init(zf);
-	_model = Camera_model::ORTHORGRAPHICS;
+	_model = Camera_model::ORTHOGRAPHIC;
 }
 camera::~camera() {
 
@@ -135,17 +152,22 @@ void camera::init(float zf, float zn, float sample_num, float lens, float focal_
 	_sample_num = sample_num;
 	_lens = lens;
 	_focal_distance = focal_distance;
+	_useSR = false;
 }
 
-void camera::useSample(float sample_num) {
+void camera::useAntialising(float sample_num) {
 	_sample_num = sample_num;
 }
+void camera::useSoftShadow() {
+	_useSR = true;
+}
+
 void camera::useDOF(float lens, float focal_distance) {
 	_lens = lens;
 	_focal_distance = focal_distance;
 }
 
-void camera::render_perspective(std::vector<objects*> &obj, int MAX_DEPTH,color** img, int w, int h) const{
+void camera::render_perspective(std::vector<objects*> &obj, int MAX_DEPTH,color** img, int w, int h) {
 	float tanh = tanf(_vtheta / 360 * 3.14f);
 	float ratio = float(w) / float(h);
 	float height = tanh * 2;
@@ -161,14 +183,21 @@ void camera::render_perspective(std::vector<objects*> &obj, int MAX_DEPTH,color*
 			random.shuffle_s();                                 //重置随机数的浮动值
 			random.shuffle_l();
 			for (int N = 0; N < random.n2; N++) {
-				float dx = (x + random._r[N].x)*invwidth*width - halfwidth;
-				float dy = (y + random._r[N].y)*invheight*height - halfheight;
-				vec3f img_center(_e._x + (x + 0.5f)*invwidth*width - halfwidth, _e._y + (y + 0.5f)*invheight*height - halfheight, _e._z + _zn);                                 //像素中心点
-				Ray _r(_e, (img_center - _e).normalize());
-				vec3f rayori(_e._x + random._l[N].x, _e._y + random._l[N].y, _e._z);
-				vec3f P = _e + _r.dir_ * (_focal_distance - _zn);                                                     //P为焦点
-				vec3f raydir = (P - img_center).normalize();
-				reslut += trace(Ray(rayori, raydir), obj, random, 0, MAX_DEPTH);
+				if (_lens <= 0) {                                                                      //是否有使用DOF
+					float dx = (x + random._r[N].x)*invwidth*width - halfwidth;
+					float dy = (y + random._r[N].y)*invheight*height - halfheight;
+					vec3f rayori(_e);
+					vec3f raydir = ((_e + _u * dx + _v * dy - _w * _zn) - _e).normalize();
+					reslut += trace(Ray(rayori, raydir), obj, random, 0, MAX_DEPTH, 0, _zf);
+				}
+				else {
+					vec3f img_center(_e + _u * ((x + 0.5f)*invwidth*width - halfwidth) + _v * ((y + 0.5f)*invheight*height - halfheight) - _w * _zn);                                 //像素中心点
+					Ray _r(_e, (img_center - _e).normalize());
+					vec3f P = _e + _r.dir_ * (_focal_distance);                                                     //P为焦点
+					vec3f rayori(_e + _u * random._l[N].x + _v * random._l[N].y);                                       //lens 的坐标
+					vec3f raydir = (P - rayori).normalize();
+					reslut += trace(Ray(rayori, raydir), obj, random, 0, MAX_DEPTH, 0, _zf);
+				}
 			}
 			reslut = reslut / float(random.n2);
 			reslut =reslut * 255;
@@ -177,7 +206,7 @@ void camera::render_perspective(std::vector<objects*> &obj, int MAX_DEPTH,color*
 		std::cout << "%" << float(y) / float(h) * 100 << std::endl;
 	}
 }
-void camera::render_orthorgraphic(std::vector<objects*> &obj, int MAX_DEPTH, color** img, int w, int h)const {
+void camera::render_orthographic(std::vector<objects*> &obj, int MAX_DEPTH, color** img, int w, int h) {
 	//float invHeight = 1.0f / float(h);
 	//float mx = float(w) / 2.0f;
 	//float my = float(h) / 2.0f;
@@ -202,11 +231,17 @@ void camera::render_orthorgraphic(std::vector<objects*> &obj, int MAX_DEPTH, col
 	//}
 }
 
-void camera::process_img(std::vector<objects*> &obj, int MAX_DEPTH, color** img, int w, int h) {
+void camera::process_img(std::vector<objects*> &obj, int MAX_DEPTH, int w, int h,const char *filepath) {
+	color **img = new color*[h];
+	for (int i = 0; i < h; i++) {
+		img[i] = new color[w];
+	}
 	if (_model == Camera_model::PERPSECTIVE) {
 		render_perspective(obj, MAX_DEPTH, img, w, h);
+		generate_color_PPM(filepath, w, h, img);
 	}
 	else {
-		render_orthorgraphic(obj, MAX_DEPTH, img, w, h);
+		render_orthographic(obj, MAX_DEPTH, img, w, h);
+		generate_color_PPM(filepath, w, h, img);
 	}
 }

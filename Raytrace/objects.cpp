@@ -151,11 +151,14 @@ color Get_texture_color(const vertex &v0, const vertex &v1, const vertex &v2, co
 	float b = dot(n, nb) / n2;
 	float c = dot(n, nc) / n2;
 	textcoord ta = v0._tc*a + v1._tc*b + v2._tc*c;
-	//std::cout << ta._u << " " << ta._v << std::endl;
+	
 	if (ta._u >= texture->_width ||
 		ta._v >= texture->_height||
 		ta._u<0||
 		ta._v<0) {
+		std::cout << ta._u << " " << ta._v << std::endl;
+		ta._u = 0;
+		ta._v = 0;
 		std::cout << "wrong";
 	}
 	return texture->_texc[texture->_height - ta._v - 1][ta._u];
