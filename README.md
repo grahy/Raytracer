@@ -19,3 +19,7 @@ left side is picture with Depth Of Feild.//18-8-14
 ![room](https://github.com/grahy/Raytracer/blob/master/Raytrace/images/texture.png) 
 
 the shadow was not smooth ,cause i just took 16 sample per shadow ray.//18-8-16.
+
+![final_effect](https://github.com/grahy/Raytracer/blob/master/Raytrace/images/final_effect.png) 
+
+almost the final effect.//18-8-18
