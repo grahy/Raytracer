@@ -163,8 +163,14 @@ void camera::useSoftShadow() {
 }
 
 void camera::useDOF(float lens, float focal_distance) {
-	_lens = lens;
-	_focal_distance = focal_distance;
+	if (lens <= 0.0099) {
+		std::cout << "lens is too small,reset it to zero" << std::endl;
+		_lens = 0;
+	}
+	else {
+		_lens = lens;
+		_focal_distance = focal_distance;
+	}
 }
 
 void camera::render_perspective(std::vector<objects*> &obj, int MAX_DEPTH,color** img, int w, int h) {
@@ -187,7 +193,7 @@ void camera::render_perspective(std::vector<objects*> &obj, int MAX_DEPTH,color*
 					float dx = (x + random._r[N].x)*invwidth*width - halfwidth;
 					float dy = (y + random._r[N].y)*invheight*height - halfheight;
 					vec3f rayori(_e);
-					vec3f raydir = ((_e + _u * dx + _v * dy - _w * _zn) - _e).normalize();
+					vec3f raydir = ( _u * dx + _v * dy - _w * _zn).normalize();
 					reslut += trace(Ray(rayori, raydir), obj, random, 0, MAX_DEPTH, 0, _zf);
 				}
 				else {
@@ -200,7 +206,7 @@ void camera::render_perspective(std::vector<objects*> &obj, int MAX_DEPTH,color*
 				}
 			}
 			reslut = reslut / float(random.n2);
-			reslut =reslut * 255;
+			reslut = reslut * 255;
 			img[h - y - 1][x] = color(reslut._x, reslut._y, reslut._z);
 		}
 		std::cout << "%" << float(y) / float(h) * 100 << std::endl;

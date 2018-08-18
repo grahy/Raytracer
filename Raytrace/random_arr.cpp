@@ -24,16 +24,14 @@ random_arr::random_arr(int sample_num,float lens)
 	}
 	else {
 		float half_sample = float(sample_num) / 2.0f;
-		
 		for (int i = 0; i < n2; i++) {
-			_r[i].x =  rand() % 99 / double(100) + i % (sample_num - 1) - half_sample;
-			_r[i].y =  rand() % 99 / double(100) + i % (sample_num - 1) - half_sample;
+			_r[i].x =  rand() % 9 / double(10) + i % (sample_num - 1) - half_sample;
+			_r[i].y =  rand() % 9 / double(10) + i % (sample_num - 1) - half_sample;
 			_s[i].x = rand() % 9 / double(10) - 0.5f;
 			_s[i].y = rand() % 9 / double(10) - 0.5f;
-			std::cout << _s[i].x << " " << _s[i].y << std::endl;
 		}
 	}
-	if (lens == 0) {
+	if (lens <= 0) {
 		for (int i = 0; i < n2; i++) {
 			_l[i].y = 0;
 			_l[i].x = 0;

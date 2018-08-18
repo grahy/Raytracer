@@ -100,21 +100,21 @@ void demo_sphere_world(int w, int h, int MAX_DEPTH) {
 		vec3f(0.8f, 0.8f, 0.8f), 0, 0, 1, vec3f(0)));
 
 	obj.push_back(&Sphere(vec3f(15, -5, -20), 4, vec3f(0.8f, 0.4f, 0), 0.4f, 0.6f, vec3f(0.8f, 0.4f, 0), 1));
-	obj.push_back(&Sphere(vec3f(-10, -10, -10), 5, vec3f(0.6f, 0.8f, 0.2f), 1, 0, vec3f(0), 1.1f));
+	obj.push_back(&Sphere(vec3f(-10, -10, -10), 5, vec3f(0.6f, 0.8f, 0.2f), 1, 0, vec3f(0.6f, 0.8f, 0.2f), 1.1f));
 	obj.push_back(&Sphere(vec3f(-30, 5, -5), 6, vec3f(0.6f, 0.4f, 0), 1, 0, vec3f(0.6f, 0.4f, 0), 1.6f));
-	obj.push_back(&Sphere(vec3f(15, -15, -15), 8, vec3f(0, 0, 0.2f), 0, 1, vec3f(0), 1.33f));
+	obj.push_back(&Sphere(vec3f(15, -15, -15), 8, vec3f(0, 0, 0.2f), 0, 1, vec3f(0, 0, 0.2f), 1.33f));
 
 	//light
-	obj.push_back(&Sphere(vec3f(0, 75, -60), 1, vec3f(0, 0.4f, 0.8f), 1, 0, vec3f(1), 1.1f));
-	obj.push_back(&Sphere(vec3f(70, 40, -30), 1, vec3f(0.7f, 0.4f, 0.2f), 1, 0, vec3f(0.7f, 0.4f, 0.2f), 1.1f));
-	obj.push_back(&Sphere(vec3f(-70, 40, -30), 1, vec3f(0.1f, 0.8f, 0.3f), 1, 0, vec3f(0.1f, 0.8f, 0.3f),1.2f));
+	//obj.push_back(&Sphere(vec3f(0, 75, -60), 1, vec3f(0, 0.4f, 0.8f), 1, 0, vec3f(1), 1.1f));
+	//obj.push_back(&Sphere(vec3f(70, 40, -30), 1, vec3f(0.7f, 0.4f, 0.2f), 1, 0, vec3f(0.7f, 0.4f, 0.2f), 1.1f));
+	//obj.push_back(&Sphere(vec3f(-70, 40, -30), 1, vec3f(0.1f, 0.8f, 0.3f), 1, 0, vec3f(0.1f, 0.8f, 0.3f),1.2f));
 	obj.push_back(&Sphere(vec3f(4, -6, -3), 3, vec3f(0.6f, 0.4f, 0), 1, 0, vec3f(0.6f, 0.4f, 0), 1.33f));
 
 	camera cam(vec3f(0, 0, 40), vec3f(0, 0, -10), vec3f(0, 1, 0), 1, INFINITE, 60);
-	cam.useAntialising(4);
-	cam.useSoftShadow();
+	cam.useAntialising(2);
+	//cam.useSoftShadow();
 	//cam.useDOF(0.6f, 30);
-	cam.process_img(obj, 5, w, h,"D:/github/Raytracer/Raytrace/images/sphere_world_with_shadowRay3.ppm");
+	cam.process_img(obj, 5, w, h,"D:/github/Raytracer/Raytrace/images/sphere_world.ppm");
 }
 
 
