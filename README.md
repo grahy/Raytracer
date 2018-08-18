@@ -5,21 +5,21 @@ Use the ppm-viewer to check the image.
 
 ![sphere_world](https://github.com/grahy/Raytracer/blob/master/Raytrace/images/sphere_world_pers_1.png)
 
-this is the first test image from the tracer without antialiasing. //2018-8-10
+this is the first test image from the tracer without antialiasing. 
 
 ![sphere_world](https://github.com/grahy/Raytracer/blob/master/Raytrace/images/antialising.png) 
 
-antialiasing and soft shadow.//18-8-13
+antialiasing and soft shadow.
 
 
 ![sphere_world](https://github.com/grahy/Raytracer/blob/master/Raytrace/images/DOF.png) 
 
-left side is picture with Depth Of Feild.//18-8-14
+left side is picture with Depth Of Feild.
 
 ![room](https://github.com/grahy/Raytracer/blob/master/Raytrace/images/texture.png) 
 
-the shadow was not smooth ,cause i just took 16 sample per shadow ray.//18-8-16.
+the shadow was not smooth ,cause i just took 16 sample per shadow ray.
 
 ![final_effect](https://github.com/grahy/Raytracer/blob/master/Raytrace/images/final_effect.png) 
 
-almost the final effect.//18-8-18
+almost the final effect.
