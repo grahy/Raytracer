@@ -9,16 +9,13 @@ this is the first test image from the tracer without antialiasing.
 
 ![sphere_world](https://github.com/grahy/Raytracer/blob/master/Raytrace/images/antialising.png) 
 
-antialiasing and soft shadow.
+antialiasing.
 
 
 ![sphere_world](https://github.com/grahy/Raytracer/blob/master/Raytrace/images/DOF.png) 
 
 left side is picture with Depth Of Feild.
 
-![room](https://github.com/grahy/Raytracer/blob/master/Raytrace/images/texture.png) 
-
-the shadow was not smooth ,cause i just took 16 sample per shadow ray.
 
 ![final_effect](https://github.com/grahy/Raytracer/blob/master/Raytrace/images/final_effect.png) 
 
